@@ -135,7 +135,7 @@
             const date = currentDate.getDate();
             const dayOfWeek = dayNames[currentDate.getDay()];
             
-            currentDateElement.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek})`;
+            currentDateElement.textContent = `${year}/${month + 1}/${date}(${dayOfWeek})`;
         }
         
         function renderExcelTable() {
