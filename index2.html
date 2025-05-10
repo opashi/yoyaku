@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel形式の予約カレンダー</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .nav-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #007aff;
+        }
+        
+        .current-date {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .calendar-view-btn {
+            padding: 8px 12px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .calendar-view-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* Excel形式のテーブル */
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        .excel-table th, .excel-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .excel-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            height: 40px;
+        }
+        
+        .excel-table th.resource-header {
+            width: 120px;
+        }
+        
+        .time-header {
+            min-width: 80px;
+        }
+        
+        .resource-name {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+
+        /* 時間枠スタイル */
+        .time-slot {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            height: 50px;
+        }
+        
+        .time-slot.available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .time-slot.available:hover {
+            background-color: #c3e6cb;
+        }
+        
+        .time-slot.booked {
+            background-color: #f8d7da;
+            color: #721c24;
+            cursor: not-allowed;
+        }
+        
+        .time-slot.selected {
+            background-color: #007aff;
+            color: white;
+        }
+        
+        /* 月カレンダー表示 */
+        .month-calendar {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .month-calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .weekday {
+            padding: 10px;
+        }
+        
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .day {
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .day:not(.other-month):hover {
+            background-color: #e6f2ff;
+        }
+        
+        .day.selected {
+            background-color: #007aff;
+            color: white;
+        }
+        
+        .day.today {
+            border: 2px solid #007aff;
+        }
+        
+        .day.other-month {
+            color: #ccc;
+            cursor: default;
+        }
+        
+        /* 予約フォーム */
+        .booking-form {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 90%;
+            max-width: 500px;
+            display: none;
+        }
+        
+        .booking-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            background-color: #007aff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #f5f5f7;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e5e5e5;
+        }
+
+        /* オーバーレイ */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel形式の予約カレンダー</h1>
+        
+        <div class="calendar-controls">
+            <div class="date-selector">
+                <button class="nav-button" id="prev-date">&lt;</button>
+                <div class="current-date" id="current-date"></div>
+                <button class="nav-button" id="next-date">&gt;</button>
+            </div>
+            <button class="calendar-view-btn" id="show-month-view">カレンダー表示</button>
+        </div>
+        
+        <div class="excel-table-container">
+            <table class="excel-table" id="excel-table">
+                <!-- JavaScriptで動的に生成 -->
+            </table>
+        </div>
+    </div>
+    
+    <!-- 月カレンダー表示 -->
+    <div class="overlay" id="calendar-overlay"></div>
+    <div class="month-calendar" id="month-calendar">
+        <div class="month-calendar-header">
+            <button class="nav-button" id="prev-month">&lt;</button>
+            <div class="current-date" id="month-year"></div>
+            <button class="nav-button" id="next-month">&gt;</button>
+        </div>
+        
+        <div class="weekdays">
+            <div class="weekday">日</div>
+            <div class="weekday">月</div>
+            <div class="weekday">火</div>
+            <div class="weekday">水</div>
+            <div class="weekday">木</div>
+            <div class="weekday">金</div>
+            <div class="weekday">土</div>
+        </div>
+        
+        <div class="days" id="days"></div>
+        
+        <button class="btn btn-secondary" id="close-month-view">閉じる</button>
+    </div>
+    
+    <!-- 予約フォーム -->
+    <div class="overlay" id="form-overlay"></div>
+    <div class="booking-form" id="booking-form">
+        <h2 id="booking-title"></h2>
+        <div class="form-group">
+            <label for="name">お名前</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">電話番号</label>
+            <input type="tel" id="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="notes">備考・要望</label>
+            <textarea id="notes" rows="4"></textarea>
+        </div>
+        <button class="btn" id="submit-booking">予約を確定する</button>
+        <button class="btn btn-secondary" id="cancel-booking">キャンセル</button>
+    </div>
+    
+    <script>
+        // 現在の日付
+        const today = new Date();
+        let currentDate = new Date(today);
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        
+        // 資格一覧（例）
+        const resources = [
+            "丸山",
+            "山下",
+        ];
+        
+        // DOM要素
+        const currentDateElement = document.getElementById('current-date');
+        const monthYearElement = document.getElementById('month-year');
+        const excelTable = document.getElementById('excel-table');
+        const monthCalendar = document.getElementById('month-calendar');
+        const calendarOverlay = document.getElementById('calendar-overlay');
+        const daysContainer = document.getElementById('days');
+        const bookingForm = document.getElementById('booking-form');
+        const formOverlay = document.getElementById('form-overlay');
+        const bookingTitle = document.getElementById('booking-title');
+        
+        // 月の名前
+        const monthNames = [
+            '1月', '2月', '3月', '4月', '5月', '6月',
+            '7月', '8月', '9月', '10月', '11月', '12月'
+        ];
+        
+        // 曜日の名前
+        const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+        
+        // 選択された予約情報
+        let selectedBooking = {
+            date: null,
+            time: null,
+            resource: null
+        };
+        
+        // カレンダー初期化
+        initCalendar();
+        
+        // イベントリスナー設定
+        document.getElementById('prev-date').addEventListener('click', () => {
+            currentDate.setDate(currentDate.getDate() - 1);
+            updateDateDisplay();
+            renderExcelTable();
+        });
+        
+        document.getElementById('next-date').addEventListener('click', () => {
+            currentDate.setDate(currentDate.getDate() + 1);
+            updateDateDisplay();
+            renderExcelTable();
+        });
+        
+        document.getElementById('show-month-view').addEventListener('click', () => {
+            showMonthCalendar();
+        });
+        
+        document.getElementById('close-month-view').addEventListener('click', () => {
+            hideMonthCalendar();
+        });
+        
+        document.getElementById('prev-month').addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderMonthCalendar();
+        });
+        
+        document.getElementById('next-month').addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderMonthCalendar();
+        });
+        
+        calendarOverlay.addEventListener('click', () => {
+            hideMonthCalendar();
+        });
+        
+        formOverlay.addEventListener('click', () => {
+            hideBookingForm();
+        });
+        
+        document.getElementById('submit-booking').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!name || !email || !phone) {
+                alert('必須項目を入力してください');
+                return;
+            }
+            
+            // ここに予約データを送信するコードを追加
+            alert('予約が完了しました！');
+            
+            // フォームをリセット
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('notes').value = '';
+            
+            // 予約フォームを閉じる
+            hideBookingForm();
+            
+            // 選択状態をクリア
+            selectedBooking = {
+                date: null,
+                time: null,
+                resource: null
+            };
+            
+            // テーブルを再描画
+            renderExcelTable();
+        });
+        
+        document.getElementById('cancel-booking').addEventListener('click', () => {
+            hideBookingForm();
+        });
+        
+        function initCalendar() {
+            updateDateDisplay();
+            renderExcelTable();
+        }
+        
+        function updateDateDisplay() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const date = currentDate.getDate();
+            const dayOfWeek = dayNames[currentDate.getDay()];
+            
+            currentDateElement.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek})`;
+        }
+        
+        function renderExcelTable() {
+            // テーブルをクリア
+            excelTable.innerHTML = '';
+            
+            // ヘッダー行を作成（時間）
+            const headerRow = document.createElement('tr');
+            
+            // 1列目（空セル）
+            const emptyHeader = document.createElement('th');
+            emptyHeader.className = 'resource-header';
+            headerRow.appendChild(emptyHeader);
+            
+            // 時間ヘッダー（9:00～18:00、30分ごと）
+            const startHour = 9;
+            const endHour = 18;
+            
+            for (let hour = startHour; hour <= endHour; hour++) {
+                for (let minutes = 0; minutes < 60; minutes += 30) {
+                    // 18:30は表示しない
+                    if (hour === endHour && minutes > 0) continue;
+                    
+                    const timeHeader = document.createElement('th');
+                    timeHeader.className = 'time-header';
+                    timeHeader.textContent = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    headerRow.appendChild(timeHeader);
+                }
+            }
+            
+            excelTable.appendChild(headerRow);
+            
+            // 資格ごとに行を作成
+            resources.forEach((resource, index) => {
+                const row = document.createElement('tr');
+                
+                // 資格名
+                const resourceCell = document.createElement('td');
+                resourceCell.className = 'resource-name';
+                resourceCell.textContent = resource;
+                row.appendChild(resourceCell);
+                
+                // 各時間枠のセルを作成
+                for (let hour = startHour; hour <= endHour; hour++) {
+                    for (let minutes = 0; minutes < 60; minutes += 30) {
+                        // 18:30は表示しない
+                        if (hour === endHour && minutes > 0) continue;
+                        
+                        const timeStr = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                        
+                        const cell = document.createElement('td');
+                        cell.className = 'time-slot';
+                        
+                        // ランダムで予約状況を設定（デモ用）
+                        const isAvailable = Math.random() > 0.3; // 70%の確率で空き
+                        
+                        if (isAvailable) {
+                            cell.className += ' available';
+                            cell.textContent = '○';
+                            
+                            // 選択状態の確認
+                            if (selectedBooking.date && 
+                                selectedBooking.date.getFullYear() === currentDate.getFullYear() &&
+                                selectedBooking.date.getMonth() === currentDate.getMonth() &&
+                                selectedBooking.date.getDate() === currentDate.getDate() &&
+                                selectedBooking.time === timeStr &&
+                                selectedBooking.resource === resource) {
+                                cell.className += ' selected';
+                            }
+                            
+                            // クリックイベント
+                            cell.addEventListener('click', () => {
+                                selectedBooking = {
+                                    date: new Date(currentDate),
+                                    time: timeStr,
+                                    resource: resource
+                                };
+                                showBookingForm();
+                            });
+                        } else {
+                            cell.className += ' booked';
+                            cell.textContent = '×';
+                        }
+                        
+                        row.appendChild(cell);
+                    }
+                }
+                
+                excelTable.appendChild(row);
+            });
+        }
+        
+        function showMonthCalendar() {
+            renderMonthCalendar();
+            monthCalendar.style.display = 'block';
+            calendarOverlay.style.display = 'block';
+        }
+        
+        function hideMonthCalendar() {
+            monthCalendar.style.display = 'none';
+            calendarOverlay.style.display = 'none';
+        }
+        
+        function renderMonthCalendar() {
+            // 月と年の表示を更新
+            monthYearElement.textContent = `${currentYear}年 ${monthNames[currentMonth]}`;
+            
+            // 日付コンテナをクリア
+            daysContainer.innerHTML = '';
+            
+            // 月の最初の日と最後の日を取得
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            
+            // 前月の日数を取得
+            const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+            
+            // 月の最初の日の曜日を取得（0-6、0は日曜日）
+            const firstDayIndex = firstDay.getDay();
+            
+            // 月の最後の日の日付を取得
+            const lastDayDate = lastDay.getDate();
+            
+            // 翌月の日数を表示するためのカウンター
+            let nextMonthDay = 1;
+            
+            // 42個のセル（6行 x 7列）を生成
+            for (let i = 0; i < 42; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+                
+                // 前月の日付
+                if (i < firstDayIndex) {
+                    const prevMonthDay = prevMonthLastDay - (firstDayIndex - i - 1);
+                    dayElement.textContent = prevMonthDay;
+                    dayElement.classList.add('other-month');
+                } 
+                // 当月の日付
+                else if (i < firstDayIndex + lastDayDate) {
+                    const dayNumber = i - firstDayIndex + 1;
+                    dayElement.textContent = dayNumber;
+                    
+                    // 今日の日付をハイライト
+                    if (currentYear === today.getFullYear() && 
+                        currentMonth === today.getMonth() && 
+                        dayNumber === today.getDate()) {
+                        dayElement.classList.add('today');
+                    }
+                    
+                    // 選択された日付をハイライト
+                    if (currentDate.getFullYear() === currentYear && 
+                        currentDate.getMonth() === currentMonth && 
+                        currentDate.getDate() === dayNumber) {
+                        dayElement.classList.add('selected');
+                    }
+                    
+                    // 日付クリック時のイベント
+                    dayElement.addEventListener('click', () => {
+                        currentDate = new Date(currentYear, currentMonth, dayNumber);
+                        updateDateDisplay();
+                        renderExcelTable();
+                        hideMonthCalendar();
+                    });
+                } 
+                // 翌月の日付
+                else {
+                    dayElement.textContent = nextMonthDay++;
+                    dayElement.classList.add('other-month');
+                }
+                
+                daysContainer.appendChild(dayElement);
+            }
+        }
+        
+        function showBookingForm() {
+            // 予約フォームのタイトルを設定
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const date = currentDate.getDate();
+            const dayOfWeek = dayNames[currentDate.getDay()];
+            
+            bookingTitle.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek}) ${selectedBooking.time} ${selectedBooking.resource}`;
+            
+            // 予約フォームを表示
+            bookingForm.style.display = 'block';
+            formOverlay.style.display = 'block';
+        }
+        
+        function hideBookingForm() {
+            bookingForm.style.display = 'none';
+            formOverlay.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
