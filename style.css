@@ -1,0 +1,275 @@
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f5f5f7;
+  color: #333;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  overflow-x: auto;
+}
+
+h1 {
+  position: sticky;
+  top: 0px;
+  left: 0px;
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.calendar-controls {
+  position: sticky;
+  top: 50px;
+  left: 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #007aff;
+}
+
+.current-date {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.calendar-view-btn {
+  padding: 8px 12px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-view-btn:hover {
+  background-color: #e0e0e0;
+}
+
+/* Excel形式のテーブル */
+.excel-table {
+  width: 500%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.excel-table th, .excel-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.excel-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  height: 40px;
+}
+
+.excel-table th.resource-header {
+  position: sticky;
+  left: -25px;
+  width: 80px;
+}
+
+.time-header {
+  min-width: 80px;
+}
+
+.resource-name {
+  position: sticky;
+  left: -25px;
+  background-color: #f8f8f8;
+  font-weight: bold;
+}
+
+/* 時間枠スタイル */
+.time-slot {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: 80px;
+}
+
+.time-slot.available {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.time-slot.available:hover {
+  background-color: #c3e6cb;
+}
+
+.time-slot.booked {
+  background-color: #f8d7da;
+  color: #721c24;
+  cursor: not-allowed;
+}
+
+.time-slot.selected {
+  background-color: #007aff;
+  color: white;
+}
+
+/* 月カレンダー表示 */
+.month-calendar {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: none;
+}
+
+.month-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.weekday {
+  padding: 10px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.day {
+  aspect-ratio: 1/1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.day:not(.other-month):hover {
+  background-color: #e6f2ff;
+}
+
+.day.selected {
+  background-color: #007aff;
+  color: white;
+}
+
+.day.today {
+  border: 2px solid #007aff;
+}
+
+.day.other-month {
+  color: #ccc;
+  cursor: default;
+}
+
+/* 予約フォーム */
+.booking-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 90%;
+  max-width: 500px;
+  display: none;
+}
+
+.booking-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.btn {
+  background-color: #007aff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #f5f5f7;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #e5e5e5;
+}
+
+/* オーバーレイ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
