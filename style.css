@@ -17,6 +17,7 @@ body {
 }
 
 h1 {
+  font-size: 26px;
   position: sticky;
   top: 0px;
   left: 0px;
@@ -50,7 +51,7 @@ h1 {
 }
 
 .current-date {
-  font-size: 16px;
+  font-size: 10px;
   font-weight: bold;
 }
 
