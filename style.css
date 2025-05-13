@@ -214,7 +214,28 @@ h1 {
   display: none;
 }
 
+/* 予約フォーム */
+.shinkan-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 90%;
+  max-width: 500px;
+  display: none;
+}
+
 .booking-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.shinkan-form h2 {
   text-align: center;
   margin-bottom: 20px;
 }
@@ -265,6 +286,18 @@ h1 {
 
 /* オーバーレイ */
 .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
+
+/* オーバーレイ */
+.shinkan_overlay {
   position: fixed;
   top: 0;
   left: 0;

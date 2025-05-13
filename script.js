@@ -20,6 +20,8 @@
         const bookingForm = document.getElementById('booking-form');
         const formOverlay = document.getElementById('form-overlay');
         const bookingTitle = document.getElementById('booking-title');
+        const shinkanForm = document.getElementById('shinkan-form');
+        const shinkanOverlay = document.getElementById('shinkan-form-overlay');
         
         // 月の名前
         const monthNames = [
@@ -82,9 +84,9 @@
         calendarOverlay.addEventListener('click', () => {
             hideMonthCalendar();
         });
-        
-        formOverlay.addEventListener('click', () => {
-            hideBookingForm();
+
+        document.getElementById('menu').addEventListener('click', () => {
+            showshinkanForm();
         });
         
         document.getElementById('submit-booking').addEventListener('click', () => {
@@ -123,6 +125,14 @@
         document.getElementById('cancel-booking').addEventListener('click', () => {
             hideBookingForm();
         });
+
+        document.getElementById('shinkan-ok').addEventListener('click',() => {
+          hideshinkanForm();
+        })
+
+        document.getElementById('shinkan-cancel').addEventListener('click',() => {
+          hideshinkanForm();
+        })
         
         function initCalendar() {
             updateDateDisplay();
@@ -135,7 +145,7 @@
             const date = currentDate.getDate();
             const dayOfWeek = dayNames[currentDate.getDay()];
             
-            currentDateElement.textContent = `${year}/${month + 1}/${date}(${dayOfWeek})`;
+            currentDateElement.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek})`;
         }
         
         function renderExcelTable() {
@@ -213,7 +223,7 @@
                                     time: timeStr,
                                     resource: resource
                                 };
-                                showBookingForm();
+                                showBookingForm(timeStr);
                             });
                         } else {
                             cell.className += ' booked';
@@ -310,7 +320,23 @@
             }
         }
         
-        function showBookingForm() {
+        function showBookingForm(timeStr) {
+            // 予約フォームのタイトルを設定
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const date = currentDate.getDate();
+            const dayOfWeek = dayNames[currentDate.getDay()];
+            
+            bookingTitle.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek}) ${selectedBooking.time} ${selectedBooking.resource}`;
+            document.getElementById("starttime").value = timeStr
+            document.getElementById("endtime").value = addMinutes(timeStr, 30);
+            
+            // 予約フォームを表示
+            bookingForm.style.display = 'block';
+            formOverlay.style.display = 'block';
+        }
+
+        function showshinkanForm() {
             // 予約フォームのタイトルを設定
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -320,11 +346,34 @@
             bookingTitle.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek}) ${selectedBooking.time} ${selectedBooking.resource}`;
             
             // 予約フォームを表示
-            bookingForm.style.display = 'block';
-            formOverlay.style.display = 'block';
+            shinkanForm.style.display = 'block';
+            shinkanOverlay.style.display = 'block';
         }
         
         function hideBookingForm() {
             bookingForm.style.display = 'none';
             formOverlay.style.display = 'none';
         }
+
+        function hideshinkanForm() {
+          shinkanForm.style.display = 'none';
+          shinkanOverlay.style.display = 'none';
+      }
+
+      function addMinutes(timeStr, minutes) {
+          // "09:00" を "09:00:00" にして Date オブジェクトに変換
+          let [hours, minutesStr] = timeStr.split(":");
+          let date = new Date();
+          date.setHours(parseInt(hours));
+          date.setMinutes(parseInt(minutesStr));
+      
+          // 指定の分数を追加
+          date.setMinutes(date.getMinutes() + minutes);
+      
+          // フォーマットを調整して戻す
+          let newHours = String(date.getHours()).padStart(2, "0");
+          let newMinutes = String(date.getMinutes()).padStart(2, "0");
+          return `${newHours}:${newMinutes}`;
+      }
+    
+    
