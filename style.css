@@ -258,6 +258,31 @@ h1 {
   box-sizing: border-box;
 }
 
+.name-group {
+  display: flex; /* inline-flexでなくてもOK */
+  flex-direction: row;
+  align-items: center;
+  gap: 10px; /* スペース調整 */
+  flex-wrap: nowrap;
+  margin-bottom: 10px;
+}
+
+.name-group label {
+  display: inline-block;
+  writing-mode: horizontal-tb; /* 水平書きに強制 */
+  white-space: nowrap; /* 改行を防止 */
+  min-width: 2em; /* 必要に応じて幅を指定 */
+}
+
+.name-group input {
+  border: 1px solid #F22;
+}
+
+
+#email{
+  border: 1px solid #F22;
+}
+
 .btn {
   background-color: #007aff;
   color: white;
