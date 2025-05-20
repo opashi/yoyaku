@@ -145,7 +145,7 @@
             const date = currentDate.getDate();
             const dayOfWeek = dayNames[currentDate.getDay()];
             
-            currentDateElement.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek})`;
+            currentDateElement.textContent = `${year}/${month + 1}/${date}(${dayOfWeek})`;
         }
         
         function renderExcelTable() {
@@ -327,7 +327,7 @@
             const date = currentDate.getDate();
             const dayOfWeek = dayNames[currentDate.getDay()];
             
-            bookingTitle.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek}) ${selectedBooking.time} ${selectedBooking.resource}`;
+            bookingTitle.textContent = `${year}/${month + 1}/${date}(${dayOfWeek}) ${selectedBooking.time} ${selectedBooking.resource}`;
             document.getElementById("starttime").value = timeStr
             document.getElementById("endtime").value = addMinutes(timeStr, 30);
             
@@ -343,7 +343,7 @@
             const date = currentDate.getDate();
             const dayOfWeek = dayNames[currentDate.getDay()];
             
-            bookingTitle.textContent = `${year}年${month + 1}月${date}日(${dayOfWeek}) ${selectedBooking.time} ${selectedBooking.resource}`;
+            bookingTitle.textContent = `${year}/${month + 1}/${date}(${dayOfWeek}) ${selectedBooking.time} ${selectedBooking.resource}`;
             
             // 予約フォームを表示
             shinkanForm.style.display = 'block';

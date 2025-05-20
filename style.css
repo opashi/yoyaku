@@ -214,6 +214,25 @@ h1 {
   display: none;
 }
 
+.time_select{
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.time_select label{
+  font-size: 12px;
+  margin-right: 30px;
+  color: #777;
+}
+
+.time_select select{
+  font-size: 14px;
+  color: #0056b3;
+  padding: 5px 10px;
+}
+
 /* 予約フォーム */
 .shinkan-form {
   position: fixed;
@@ -277,7 +296,6 @@ h1 {
 .name-group input {
   border: 1px solid #F22;
 }
-
 
 #email{
   border: 1px solid #F22;
